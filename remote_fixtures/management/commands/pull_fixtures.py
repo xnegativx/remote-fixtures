@@ -11,6 +11,10 @@ from remote_fixtures.utils import S3Mixin, FixtureSource
 
 
 class Command(BaseCommand, S3Mixin):
+
+    def add_arguments(self, parser):
+        parser.add_argument('--fixture', action='store')
+
     def get_latest_fixture_key(self):
         bucket = self.get_bucket()
         fixtures = bucket.list('fixture_')
@@ -57,17 +61,17 @@ class Command(BaseCommand, S3Mixin):
             fixture_file.seek(0)
 
             if key.name.endswith('.gz'):
-                return (self.decompress_file(fixture_file), source)
+                return self.decompress_file(fixture_file), source
 
-        return (fixture_file, source)
+        return fixture_file, source
 
     def load_fixture(self, fixture_file):
         call_command('loaddata', fixture_file.name)
 
     def handle(self, *args, **options):
-        if len(args) > 0:
+        if options['fixture'] > 0:
             # get fixture from supplied filename
-            fixture_key = self.get_fixture_key_for_filename(args[0])
+            fixture_key = self.get_fixture_key_for_filename(options['fixture'])
         else:
             # find latest fixture file
             fixture_key = self.get_latest_fixture_key()

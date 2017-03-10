@@ -11,8 +11,9 @@ class FixtureSource(object):
 class S3Mixin(object):
     def get_bucket(self):
         if not hasattr(self, 'bucket'):
-            conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-            self.bucket = conn.get_bucket(settings.REMOTE_FIXTURES_BUCKET_NAME)
+            conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY,
+                                host=settings.AWS_S3_HOST)
+            self.bucket = conn.get_bucket(settings.REMOTE_FIXTURES_BUCKET_NAME, validate=False)
 
         return self.bucket
 
